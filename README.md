@@ -57,5 +57,37 @@ The server will start on the specified port (defined in the `.env` file).
 Feel free to submit issues or pull requests for any improvements or features you would like to see.
 
 ## License
+   ### Çalıştırma
+
+   - `.env` dosyasını oluşturun (veya `.env.example`'i kopyalayın) ve veritabanı bilgilerinizi girin.
+   - MySQL'de `edirne_rota_db` veritabanını ve `users` tablosunu oluşturun:
+
+   ```sql
+   CREATE DATABASE IF NOT EXISTS edirne_rota_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+   USE edirne_rota_db;
+
+   CREATE TABLE IF NOT EXISTS users (
+     id INT AUTO_INCREMENT PRIMARY KEY,
+     full_name VARCHAR(255) NOT NULL,
+     email VARCHAR(255) NOT NULL UNIQUE,
+     password VARCHAR(255) NOT NULL,
+     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   );
+   ```
+
+   - Bağımlılıkları yükleyin ve uygulamayı başlatın:
+
+   ```powershell
+   npm install
+   npm run dev
+   ```
+
+   - Kayıt ve giriş testleri (PowerShell `curl`):
+
+   ```powershell
+   curl -Method POST -Uri http://localhost:3000/api/auth/register -ContentType 'application/json' -Body (@{ full_name='Test K'; email='test@edirne.com'; password='123456' } | ConvertTo-Json)
+
+   curl -Method POST -Uri http://localhost:3000/api/auth/login -ContentType 'application/json' -Body (@{ email='test@edirne.com'; password='123456' } | ConvertTo-Json)
+   ```
 
 This project is licensed under the MIT License.

@@ -1,18 +1,34 @@
-// Veritabanı bağlantı ayarları
-//bu kod mongodb için yazılmış sql kullanırken değiştirmemiz lazım!!!!!!!!!!!!!!!!!!!!
-const mongoose = require('mongoose');
+// MySQL veritabanı bağlantı ayarları
+// Kullanım: const { pool, initDB } = require('../config/veritabani');
+const mysql = require('mysql2/promise');
 
-const connectDB = async () => {
+let pool;
+
+const initDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+    pool = mysql.createPool({
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'edirne_rota_db',
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
     });
-    console.log('Veritabanına başarıyla bağlanıldı');
+
+    // Basit bir bağlantı testi
+    const conn = await pool.getConnection();
+    await conn.ping();
+    conn.release();
+
+    console.log('MySQL veritabanına başarıyla bağlanıldı');
   } catch (error) {
-    console.error('Veritabanı bağlantı hatası:', error);
+    console.error('MySQL bağlantı hatası:', error);
     process.exit(1);
   }
 };
 
-module.exports = connectDB;
+module.exports = {
+  initDB,
+  getPool: () => pool,
+};
