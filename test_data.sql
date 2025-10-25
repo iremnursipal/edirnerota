@@ -1,0 +1,3 @@
+INSERT INTO users (id, full_name, email, password, created_at) VALUES (1, 'Test K', 'test@edirne.com', '$2b$10$UtaGxUGBgOjTbchcQWityuEAUzXC.sdpr1ZQOTFYUs9V3pLdy8mka', '2025-10-15 21:44:23');
+INSERT INTO users (id, full_name, email, password, created_at) VALUES (2, 'Edirne Test Kullanicisi', 'testuser@edirne.com', '$2b$10$LdzxZltaVcrG2UOv45uwQOQDuvnAEWYD6hzqZaG7cU4kA074xgkLu', '2025-10-15 22:28:13');
+INSERT INTO users (id, full_name, email, password, created_at) VALUES (3, 'Demo Kullanici', 'demo@edirne.com', '$2b$10$E6auFZOvHWLlN8Ar0EooROjRZtrD6LhZiBxoO7ptQ2t8sPCIJOzBO', '2025-10-25 15:54:03');
