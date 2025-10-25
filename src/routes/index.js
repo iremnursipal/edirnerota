@@ -4,6 +4,7 @@ const router = express.Router();
 // Import controller functions
 const { getAllItems, getItemById, createItem, updateItem, deleteItem } = require('../controllers/index');
 const { register, login } = require('../controllers/auth');
+const { authenticate } = require('../middleware/authMiddleware');
 const { body } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 
@@ -32,5 +33,10 @@ router.post(
 );
 
 router.post('/auth/login', loginLimiter, [body('email').isEmail(), body('password').exists()], login);
+
+// protected example route
+router.get('/auth/me', authenticate, (req, res) => {
+	res.json({ status: 'success', user: req.user });
+});
 
 module.exports = router;

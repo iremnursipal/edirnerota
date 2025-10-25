@@ -28,7 +28,29 @@ const initDB = async () => {
   }
 };
 
+const closeDB = async () => {
+  if (pool) {
+    try {
+      await pool.end();
+      console.log('MySQL bağlantısı kapatıldı');
+    } catch (err) {
+      console.error('MySQL kapatma hatası:', err);
+    }
+  }
+};
+
+// Graceful shutdown handlers
+process.on('SIGINT', async () => {
+  await closeDB();
+  process.exit(0);
+});
+process.on('SIGTERM', async () => {
+  await closeDB();
+  process.exit(0);
+});
+
 module.exports = {
   initDB,
   getPool: () => pool,
+  closeDB,
 };

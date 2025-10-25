@@ -19,7 +19,14 @@ const createUser = async ({ full_name, email, password }) => {
   return { id: result.insertId, full_name, email };
 };
 
+const findUserById = async (id) => {
+  const pool = getPool();
+  const [rows] = await pool.query('SELECT * FROM users WHERE id = ? LIMIT 1', [id]);
+  return rows[0];
+};
+
 module.exports = {
   findUserByEmail,
   createUser,
+  findUserById,
 };
