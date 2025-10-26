@@ -30,4 +30,60 @@ const getUserProfile = async (id) => {
   return { id: user.id, full_name: user.full_name, email: user.email };
 };
 
-module.exports = { registerUser, loginUser, getUserProfile };
+const forgotPassword = async (email) => {
+  // Kullanıcıyı bul
+  const user = await findUserByEmail(email);
+  if (!user) {
+    // Güvenlik için generic mesaj dön, kullanıcı var/yok bilgisi verme
+    return { status: 'success', message: 'Eğer hesabınız varsa, şifre sıfırlama bağlantısı gönderilecektir' };
+  }
+
+  // Rastgele token oluştur
+  const token = require('crypto').randomBytes(32).toString('hex');
+  
+  // Token'ın geçerlilik süresini ayarla (1 saat)
+  const expiresAt = new Date();
+  expiresAt.setHours(expiresAt.getHours() + 1);
+
+  // Token'ı kaydet
+  await createPasswordResetToken(user.id, token, expiresAt);
+
+  // TODO: E-posta gönderimi
+  // Geliştirme aşamasında konsola yazdır
+  const resetLink = `http://localhost:${process.env.PORT || 3000}/reset-password?token=${token}`;
+  console.log('Password reset link:', resetLink);
+
+  // Eğer development ise reset link'i response'a ekle (test kolaylığı için)
+  const baseResponse = { status: 'success', message: 'Eğer hesabınız varsa, şifre sıfırlama bağlantısı gönderilecektir' };
+  if (process.env.NODE_ENV !== 'production') {
+    return { ...baseResponse, resetLink };
+  }
+  return baseResponse;
+};
+
+const resetPassword = async (token, newPassword) => {
+  // Token'ı kontrol et
+  const resetToken = await findValidPasswordResetToken(token);
+  if (!resetToken) {
+    throw { status: 400, message: 'Geçersiz veya süresi dolmuş şifre sıfırlama bağlantısı' };
+  }
+
+  // Yeni şifreyi hashle
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  
+  // Şifreyi güncelle
+  await updateUserPassword(resetToken.user_id, hashedPassword);
+  
+  // Token'ı kullanıldı olarak işaretle
+  await markTokenAsUsed(resetToken.id);
+
+  return { status: 'success', message: 'Şifreniz başarıyla güncellendi' };
+};
+
+module.exports = { 
+  registerUser, 
+  loginUser, 
+  getUserProfile,
+  forgotPassword,
+  resetPassword
+};

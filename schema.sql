@@ -1,0 +1,21 @@
+-- Veritabanını oluştur
+CREATE DATABASE IF NOT EXISTS edirne_rota_db;
+USE edirne_rota_db;
+
+-- Users tablosunu oluştur veya güncelle
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    reset_token VARCHAR(255) DEFAULT NULL,
+    reset_token_expires DATETIME DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Eğer tablo zaten varsa, yeni alanları ekle
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255) DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS reset_token_expires DATETIME DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;

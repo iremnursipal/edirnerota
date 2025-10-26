@@ -6,25 +6,40 @@ let pool;
 
 const initDB = async () => {
   try {
-    pool = mysql.createPool({
-      host: process.env.DB_HOST || 'localhost',
-      user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME || 'edirne_rota_db',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-    });
+    if (!pool) {
+      pool = mysql.createPool({
+        host: process.env.DB_HOST || 'localhost',
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD || '',
+        database: process.env.DB_NAME || 'edirne_rota_db',
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+        enableKeepAlive: true,
+        keepAliveInitialDelay: 0,
+      });
 
-    // Basit bir bağlantı testi
-    const conn = await pool.getConnection();
-    await conn.ping();
-    conn.release();
+      // Pool error handling
+      pool.on('error', async (err) => {
+        console.error('Unexpected pool error:', err);
+        try {
+          await closeDB();
+          await initDB(); // Try to reinitialize the pool
+        } catch (reinitError) {
+          console.error('Failed to reinitialize pool:', reinitError);
+        }
+      });
 
-    console.log('MySQL veritabanına başarıyla bağlanıldı');
+      // Test connection
+      const conn = await pool.getConnection();
+      await conn.ping();
+      conn.release();
+      
+      console.log('MySQL veritabanına başarıyla bağlanıldı');
+    }
   } catch (error) {
     console.error('MySQL bağlantı hatası:', error);
-    process.exit(1);
+    throw error; // Let the application handle the error instead of exiting
   }
 };
 
@@ -32,9 +47,12 @@ const closeDB = async () => {
   if (pool) {
     try {
       await pool.end();
+      pool = null; // Reset the pool reference
       console.log('MySQL bağlantısı kapatıldı');
     } catch (err) {
       console.error('MySQL kapatma hatası:', err);
+      pool = null; // Reset even on error
+      throw err;
     }
   }
 };
