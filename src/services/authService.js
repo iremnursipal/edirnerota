@@ -1,6 +1,15 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { findUserByEmail, createUser, findUserById } = require('../models/userModel');
+const { 
+  findUserByEmail, 
+  createUser, 
+  findUserById,
+  createPasswordResetToken,
+  findValidPasswordResetToken,
+  updateUserPassword,
+  markTokenAsUsed 
+} = require('../models/userModel');
+const { sendPasswordResetEmail } = require('./emailService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
 
@@ -48,13 +57,20 @@ const forgotPassword = async (email) => {
   // Token'ı kaydet
   await createPasswordResetToken(user.id, token, expiresAt);
 
-  // TODO: E-posta gönderimi
-  // Geliştirme aşamasında konsola yazdır
-  const resetLink = `http://localhost:${process.env.PORT || 3000}/reset-password?token=${token}`;
-  console.log('Password reset link:', resetLink);
+  // Frontend URL'i oluştur (FRONTEND_URL env var'dan veya default)
+  const frontendUrl = process.env.FRONTEND_URL || `http://localhost:${process.env.PORT || 3000}`;
+  const resetLink = `${frontendUrl}/reset-password?token=${token}`;
 
-  // Eğer development ise reset link'i response'a ekle (test kolaylığı için)
-  const baseResponse = { status: 'success', message: 'Eğer hesabınız varsa, şifre sıfırlama bağlantısı gönderilecektir' };
+  // E-posta gönder
+  try {
+    await sendPasswordResetEmail(user.email, resetLink, user.full_name);
+  } catch (emailError) {
+    console.error('Email gönderimi başarısız:', emailError.message);
+    // Email gönderimi başarısız olsa bile kullanıcıya generic mesaj dön (güvenlik)
+  }
+
+  // Geliştirme ortamında link'i response'a ekle (test kolaylığı için)
+  const baseResponse = { status: 'success', message: 'Eğer hesabınız varsa, şifre sıfırlama bağlantısı e-posta adresinize gönderildi' };
   if (process.env.NODE_ENV !== 'production') {
     return { ...baseResponse, resetLink };
   }

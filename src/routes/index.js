@@ -21,6 +21,12 @@ const loginLimiter = rateLimit({
 	message: { status: 'error', message: 'Çok fazla giriş denemesi, lütfen bir dakika sonra tekrar deneyin' }
 });
 
+const forgotPasswordLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 dakika
+	max: 3, // IP başına 15 dakikada maksimum 3 istek
+	message: { status: 'error', message: 'Çok fazla şifre sıfırlama talebi, lütfen 15 dakika sonra tekrar deneyin' }
+});
+
 // Items routes
 router.get('/items', getAllItems);
 router.get('/items/:id', getItemById);
@@ -43,6 +49,7 @@ router.post('/auth/login', loginLimiter, [body('email').isEmail(), body('passwor
 
 // Şifre sıfırlama route'ları
 router.post('/auth/forgot-password',
+  forgotPasswordLimiter,
   [
     body('email').isEmail().withMessage('Geçerli bir e-posta adresi girin')
   ],

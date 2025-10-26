@@ -1,0 +1,171 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Edirne Rota - Auth & Password Reset",
+  "dateExported": "2025-10-26",
+  "version": "1.1",
+  "folders": [
+    {
+      "id": "auth-folder",
+      "name": "Authentication",
+      "containerId": "",
+      "created": "2025-10-26T12:00:00.000Z",
+      "sortNum": 10000
+    },
+    {
+      "id": "password-folder",
+      "name": "Password Reset",
+      "containerId": "",
+      "created": "2025-10-26T12:00:00.000Z",
+      "sortNum": 20000
+    }
+  ],
+  "requests": [
+    {
+      "id": "register-req",
+      "name": "1. Register User",
+      "url": "http://localhost:3000/api/auth/register",
+      "method": "POST",
+      "sortNum": 10000,
+      "created": "2025-10-26T12:00:00.000Z",
+      "modified": "2025-10-26T12:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"full_name\": \"Test User\",\n  \"email\": \"test@edirne.com\",\n  \"password\": \"test123456\"\n}",
+        "form": []
+      },
+      "tests": [],
+      "containerId": "auth-folder"
+    },
+    {
+      "id": "login-req",
+      "name": "2. Login",
+      "url": "http://localhost:3000/api/auth/login",
+      "method": "POST",
+      "sortNum": 20000,
+      "created": "2025-10-26T12:00:00.000Z",
+      "modified": "2025-10-26T12:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"test@edirne.com\",\n  \"password\": \"test123456\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "set-env-var",
+          "custom": "json.token",
+          "action": "setto",
+          "value": "{{token}}"
+        }
+      ],
+      "containerId": "auth-folder"
+    },
+    {
+      "id": "me-req",
+      "name": "3. Get Profile (/me)",
+      "url": "http://localhost:3000/api/auth/me",
+      "method": "GET",
+      "sortNum": 30000,
+      "created": "2025-10-26T12:00:00.000Z",
+      "modified": "2025-10-26T12:00:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}"
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "containerId": "auth-folder"
+    },
+    {
+      "id": "forgot-password-req",
+      "name": "1. Forgot Password",
+      "url": "http://localhost:3000/api/auth/forgot-password",
+      "method": "POST",
+      "sortNum": 10000,
+      "created": "2025-10-26T12:00:00.000Z",
+      "modified": "2025-10-26T12:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"test@edirne.com\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "set-env-var",
+          "custom": "json.resetLink",
+          "action": "setto",
+          "value": "{{resetLink}}"
+        }
+      ],
+      "containerId": "password-folder"
+    },
+    {
+      "id": "reset-password-req",
+      "name": "2. Reset Password",
+      "url": "http://localhost:3000/api/auth/reset-password",
+      "method": "POST",
+      "sortNum": 20000,
+      "created": "2025-10-26T12:00:00.000Z",
+      "modified": "2025-10-26T12:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"token\": \"BURAYA_TOKEN_YAPIŞTIR\",\n  \"newPassword\": \"yeniSifre123\"\n}",
+        "form": []
+      },
+      "tests": [],
+      "containerId": "password-folder"
+    },
+    {
+      "id": "login-new-password-req",
+      "name": "3. Login with New Password",
+      "url": "http://localhost:3000/api/auth/login",
+      "method": "POST",
+      "sortNum": 30000,
+      "created": "2025-10-26T12:00:00.000Z",
+      "modified": "2025-10-26T12:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"test@edirne.com\",\n  \"password\": \"yeniSifre123\"\n}",
+        "form": []
+      },
+      "tests": [],
+      "containerId": "password-folder"
+    }
+  ]
+}
